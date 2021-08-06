@@ -1,0 +1,47 @@
+body {
+  margin: 10px;
+}
+#board > table {
+  border-collapse: collapse;
+}
+
+#board > table > tr > td {
+  width: 60px;
+  height: 60px;
+  font-size: 12px;
+  text-align: right;
+  vertical-align: text-top;
+  padding-right: 4px;
+  border: 1px solid black;
+  background-repeat: no-repeat;
+  background-size: 40px;
+  background-position: center center;
+}
+
+#console {
+  width: 600px;
+  height: 200px;
+  overflow-y: auto;
+  background-color: black;
+}
+
+#console > p {
+  color: #00cc00;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.player-square {
+  background-image: url("./player.png");
+}
+
+.snake-square {
+  background-image: url("./snake.png");
+  background-color: #ffe6e6;
+}
+
+.ladder-square {
+  background-image: url("./ladder.png");
+  background-color: #e3fbe3;
+}
