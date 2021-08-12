@@ -1,37 +1,57 @@
-const checkSnake = (pos) => pos % 9 === 0;
+const checkSnake = (pos) => pos > 0 && pos % 9 === 0;
 const checkLadder = (pos) => [25, 55].includes(pos);
 const checkOverflowNearEnd = (pos) => pos > 100;
-
 const sleep = (time) => new Promise((res) => setTimeout(() => res(time), time));
 
-const start = async () => {
+const rollDice = () => {
+  return new Promise(async (res) => {
+    await sleep(1000);
+    res(Math.floor(Math.random() * 6) + 1);
+  });
+};
+
+const calculateNewPosition = ({ currPos, proposedPos }) => {
+  if (checkSnake(proposedPos)) return proposedPos - 3;
+  else if (checkLadder(proposedPos)) return proposedPos + 10;
+  else if (checkOverflowNearEnd(proposedPos)) return currPos;
+
+  return proposedPos;
+};
+
+const start = async (browser = true) => {
   let currPos = 1;
-  await draw(currPos);
-  await clear({ pos: currPos });
+  browser && (await draw(currPos));
+  browser && (await clear(currPos));
 
   while (currPos !== 100) {
-    await sleep(1000);
+    const diceFace = await rollDice();
+    const proposedPos = currPos + diceFace;
+    const isSnake = checkSnake(proposedPos);
+    const isLadder = checkLadder(proposedPos);
+    const isOverflowNearEnd = checkOverflowNearEnd(proposedPos);
 
-    const diceFace = Math.floor(Math.random() * 6) + 1;
-    let newPos = currPos + diceFace;
+    browser && !isOverflowNearEnd && (await draw(proposedPos));
+    browser && !isOverflowNearEnd && (await clear(proposedPos));
 
-    const isSnake = checkSnake(newPos);
-    const isLadder = checkLadder(newPos);
-    const isOverflowNearEnd = checkOverflowNearEnd(newPos);
+    const newPos = calculateNewPosition({ currPos, proposedPos });
 
-    !isOverflowNearEnd && (await draw(newPos));
-    !isOverflowNearEnd && (await clear({ pos: newPos, isSnake, isLadder }));
-
-    if (isSnake) newPos -= 3;
-    else if (isLadder) newPos += 10;
-    else if (isOverflowNearEnd) newPos = currPos;
-
-    await log({ currPos, newPos, isSnake, isLadder, diceFace });
-    await draw(newPos);
-    newPos !== 100 && (await clear({ pos: newPos }));
+    await logToConsole({ currPos, newPos, isSnake, isLadder, diceFace });
+    browser && (await log({ currPos, newPos, isSnake, isLadder, diceFace }));
+    browser && (await draw(newPos));
+    browser && (await clear(newPos));
 
     currPos = newPos;
   }
+};
+
+const logToConsole = ({ currPos, newPos, isSnake, isLadder }) => {
+  return new Promise((res) => {
+    const text = `${currPos} - ${
+      isSnake ? "snake" : isLadder ? "ladder" : ""
+    }${newPos}`;
+    console.log(text);
+    res(text);
+  });
 };
 
 const log = ({ currPos, newPos, isSnake, isLadder, diceFace }) => {
@@ -39,7 +59,6 @@ const log = ({ currPos, newPos, isSnake, isLadder, diceFace }) => {
     const text = `[Rolled ${diceFace}]: ${currPos} - ${
       isSnake ? "snake" : isLadder ? "ladder" : ""
     }${newPos}`;
-    console.log(text);
     const para = document.createElement("p");
     const node = document.createTextNode(`${text}`);
     para.appendChild(node);
@@ -50,13 +69,13 @@ const log = ({ currPos, newPos, isSnake, isLadder, diceFace }) => {
   });
 };
 
-const clear = ({ pos, isSnake = false, isLadder = false }) => {
+const clear = (pos) => {
   return new Promise(async (res) => {
     await sleep(500);
     const square = document.getElementById(`square-${pos}`);
-    square.className = isSnake
+    square.className = checkSnake(pos)
       ? "snake-square"
-      : isLadder
+      : checkLadder(pos)
       ? "ladder-square"
       : "";
     return res();
@@ -78,7 +97,6 @@ const populateBoard = () => {
     const tr = document.createElement("tr");
     const flip = (i + 1) % 2 === 0;
     const toFlip = [];
-    console.log({ flip });
     for (let j = 0; j < 10; j++) {
       const td = document.createElement("td");
       const isSnake = checkSnake(id);
@@ -95,6 +113,14 @@ const populateBoard = () => {
   document.getElementById("board").appendChild(table);
 };
 
-window.onload = (event) => {
-  populateBoard();
-};
+try {
+  window.onload = (event) => { populateBoard() };
+} catch {
+  console.log("No window available to draw board.");
+}
+
+try {
+  module.exports = { start, checkSnake, checkLadder, checkOverflowNearEnd, calculateNewPosition };
+} catch {
+  console.log("Not running within Node JS");
+}

@@ -1,6 +1,7 @@
 body {
   margin: 10px;
 }
+
 #board > table {
   border-collapse: collapse;
 }
@@ -33,15 +34,15 @@ body {
 }
 
 .player-square {
-  background-image: url("./player.png");
+  background-image: url("./assets/player.png");
 }
 
 .snake-square {
-  background-image: url("./snake.png");
+  background-image: url("./assets/snake.png");
   background-color: #ffe6e6;
 }
 
 .ladder-square {
-  background-image: url("./ladder.png");
+  background-image: url("./assets/ladder.png");
   background-color: #e3fbe3;
 }
