@@ -1,9 +1,4 @@
-const {
-  checkSnake,
-  checkLadder,
-  checkOverflowNearEnd,
-  calculateNewPosition,
-} = require("./game.js");
+const { checkSnake, checkLadder, checkOverflowNearEnd, calculateNewPosition, toLogText } = require("./game.js");
 
 const describe = (description, test) => {
   console.log(`\n${description}:`);
@@ -21,6 +16,18 @@ const it = (description, conditions) => {
   console.log(`${description}: ${passed ? "PASSED" : "FAILED"}`);
   fails.forEach((fail) => console.log(fail));
 };
+
+describe("toLogText()", () => {
+  const snakePos = { newPos: 27, isSnake: true, isLadder: false, diceFace: 3 };
+  const ladderPos = { newPos: 65, isSnake: false, isLadder: true, diceFace: 6 };
+  const overflowPos = { newPos: 97, isSnake: false, isLadder: false, diceFace: 5 };
+  const normalPos = { newPos: 10, isSnake: false, isLadder: false, diceFace: 2 };
+
+  it("logs the correct message to the console for a snake position", [ toLogText(snakePos) === '3 - snake27' ]);
+  it("logs the correct message to the console for a ladder position", [ toLogText(ladderPos) === '6 - ladder65' ]);
+  it("logs the correct message to the console for an overflow position", [ toLogText(overflowPos) === '5 - 97' ]);
+  it("logs the correct message to the console for a normal position", [ toLogText(normalPos) === '2 - 10' ]);
+});
 
 describe("checkSnake()", () => {
   it("corectly determines if the specified position is a snake", [

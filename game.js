@@ -2,6 +2,7 @@ const checkSnake = (pos) => pos > 0 && pos % 9 === 0;
 const checkLadder = (pos) => [25, 55].includes(pos);
 const checkOverflowNearEnd = (pos) => pos > 100;
 const sleep = (time) => new Promise((res) => setTimeout(() => res(time), time));
+const toLogText = ({ newPos, isSnake, isLadder, diceFace }) => `${diceFace} - ${isSnake ? "snake" : isLadder ? "ladder" : ""}${newPos}`;
 
 const rollDice = () => {
   return new Promise(async (res) => {
@@ -35,8 +36,7 @@ const start = async (browser = true) => {
 
     const newPos = calculateNewPosition({ currPos, proposedPos });
 
-    await logToConsole({ currPos, newPos, isSnake, isLadder, diceFace });
-    browser && (await log({ currPos, newPos, isSnake, isLadder, diceFace }));
+    await logToBrowser({ newPos, isSnake, isLadder, diceFace, browser });
     browser && (await draw(newPos));
     browser && (await clear(newPos));
 
@@ -44,27 +44,18 @@ const start = async (browser = true) => {
   }
 };
 
-const logToConsole = ({ currPos, newPos, isSnake, isLadder }) => {
+const logToBrowser = ({ newPos, isSnake, isLadder, diceFace, browser }) => {
   return new Promise((res) => {
-    const text = `${currPos} - ${
-      isSnake ? "snake" : isLadder ? "ladder" : ""
-    }${newPos}`;
-    console.log(text);
-    res(text);
-  });
-};
-
-const log = ({ currPos, newPos, isSnake, isLadder, diceFace }) => {
-  return new Promise((res) => {
-    const text = `[Rolled ${diceFace}]: ${currPos} - ${
-      isSnake ? "snake" : isLadder ? "ladder" : ""
-    }${newPos}`;
-    const para = document.createElement("p");
-    const node = document.createTextNode(`${text}`);
-    para.appendChild(node);
-    const consoleSection = document.getElementById("console");
-    consoleSection.appendChild(para);
-    consoleSection.scrollTop = consoleSection.scrollHeight;
+    const text = toLogText({ newPos, isSnake, isLadder, diceFace });
+    console.log(text)
+    if (browser) {
+      const para = document.createElement("p");
+      const node = document.createTextNode(`${text}`);
+      para.appendChild(node);
+      const consoleSection = document.getElementById("console");
+      consoleSection.appendChild(para);
+      consoleSection.scrollTop = consoleSection.scrollHeight;
+    }
     res(text);
   });
 };
@@ -113,14 +104,8 @@ const populateBoard = () => {
   document.getElementById("board").appendChild(table);
 };
 
-try {
-  window.onload = (event) => { populateBoard() };
-} catch {
-  console.log("No window available to draw board.");
-}
+try { window.onload = (event) => { populateBoard() } }
+catch { console.log("No window available to draw board.") }
 
-try {
-  module.exports = { start, checkSnake, checkLadder, checkOverflowNearEnd, calculateNewPosition };
-} catch {
-  console.log("Not running within Node JS");
-}
+try { module.exports = { start, checkSnake, checkLadder, checkOverflowNearEnd, calculateNewPosition, toLogText } }
+catch { console.log("Not running within Node JS") }
