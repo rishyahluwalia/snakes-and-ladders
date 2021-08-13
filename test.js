@@ -9,9 +9,17 @@ const describe = (description, test) => {
   console.log(`\n${description}:`);
   test();
 };
+
 const it = (description, conditions) => {
-  const passed = conditions.every((test) => !!test);
+  const fails = [];
+  const passed = conditions.every((test, index) => {
+    if (test === false) {
+      fails.push(`condition ${index + 1} did not pass`);
+    }
+    return !!test;
+  });
   console.log(`${description}: ${passed ? "PASSED" : "FAILED"}`);
+  fails.forEach((fail) => console.log(fail));
 };
 
 describe("checkSnake()", () => {
